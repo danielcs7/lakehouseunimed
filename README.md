@@ -2,7 +2,7 @@
 
 ## Visão Geral
 
-Este workspace implementa um **data lakehouse** moderno utilizando **Apache Iceberg** para gerenciamento de tabelas analíticas, integrado com **MinIO** (storage S3-compatível), **PostgreSQL** (banco operacional), **Spark** (processamento ETL), **Hive Metastore** (catálogo de metadados), **Trino** (query engine) e **Grafana** (observabilidade). O foco é em um pipeline de dados para dados de clientes e vendas da Unimed, com camadas **Bronze**, **Silver** e **Gold**.
+Este workspace implementa um **data lakehouse** moderno utilizando **Apache Iceberg** para gerenciamento de tabelas analíticas, integrado com **MinIO** (storage S3-compatível), **PostgreSQL** (banco operacional), **Spark** (processamento ETL), **Hive Metastore** (catálogo de metadados), **Trino** (query engine) e **Grafana** (observabilidade). O foco é em um pipeline de dados para dados de clientes e vendas da Unimed(dados fictícios), com camadas **Bronze**, **Silver** e **Gold**.
 
 O ambiente é orquestrado via **Docker Compose**, permitindo setup local rápido. A arquitetura segue o padrão **Medallion** (ingestão → refinamento → consumo).
 
