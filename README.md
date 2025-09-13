@@ -503,7 +503,9 @@ Para contribuições: Fork, PR com testes. Contato: [seu-email].
 
 *Última atualização: Setembro 2025*
 
+# 🚀 Estrutura do Projeto - Data Lake Unimed
 
+```bash
 workspaceUnimed/
 ├── airflow/                          # Orquestração
 │   ├── docker-compose.yml
@@ -514,10 +516,11 @@ workspaceUnimed/
 │   ├── .env                          # Variáveis do Airflow
 │   └── postgres-data/                # Volume persistente do Postgres do Airflow
 │
-├── postgres/ 
+├── postgres/                         # Banco de metadados
 │   ├── data/
-│   └── docker.compose.yml
+│   ├── docker-compose.yml
 │   └── init-database.sh
+│
 ├── minio/                            # Storage
 │   ├── docker-compose.yml
 │   ├── data/                         # Dados do MinIO (buckets)
@@ -526,20 +529,20 @@ workspaceUnimed/
 ├── processing/                       # Processamento e Query (Spark + Hive + Trino)
 │   ├── docker-compose.yml
 │   ├── hive-metastore/
-│   │   └── Dockerfile                 # Dockerfile do Hive Metastore
+│   │   └── Dockerfile                # Dockerfile do Hive Metastore
 │   ├── notebook/
-|   |   ├── data/
-|   |   ├── logs/
-|   |   ├── .env
-|   |   ├── dlake-FAKE.ipynb
-|   |   ├── dlake-ETL.ipynb
-|   |   ├── dlake-BRONZE.ipynb
-|   |   ├── dlake-UPLOAD.ipynb
-|   |   ├── dlake-SILVER.ipynb
-|   |   ├── dlake-GOLD.ipynb
-|   |   ├── dlake-GOLD-AGGR.ipynb
-|   |   ├── dlake-STUDY.ipynb
-|   |   ├── tables.yml
+│   │   ├── data/
+│   │   ├── logs/
+│   │   ├── .env
+│   │   ├── dlake-FAKE.ipynb
+│   │   ├── dlake-ETL.ipynb
+│   │   ├── dlake-BRONZE.ipynb
+│   │   ├── dlake-UPLOAD.ipynb
+│   │   ├── dlake-SILVER.ipynb
+│   │   ├── dlake-GOLD.ipynb
+│   │   ├── dlake-GOLD-AGGR.ipynb
+│   │   ├── dlake-STUDY.ipynb
+│   │   └── tables.yml
 │   ├── spark/
 │   │   ├── jupyter/
 │   │   │   ├── jupyter_server_config.py
@@ -559,6 +562,7 @@ workspaceUnimed/
 │   │       ├── hive.properties
 │   │       └── iceberg.properties
 │   └── .env
+│
 ├── grafana/                          # Observabilidade
 │   ├── docker-compose.yml
 │   ├── config/
@@ -567,15 +571,30 @@ workspaceUnimed/
 │   ├── logs/                         # Logs que o Promtail coleta
 │   └── .env
 │
-└── README.md                         # Documentação do setup
+├── README.md                         # Documentação do setup
 │
-└── docker-compose.yml
+└── docker-compose.yml                # Orquestração raiz
 
 🚀 Fluxo resumido
+## 🔗 Arquitetura - Data Lake Unimed
+flowchart LR
+    A[MinIO - Storage (S3)] --> B[Hive Metastore - Catálogo]
+    B --> C[Spark - ETL & ML]
+    C --> D[Trino - Consultas SQL]
+    D --> E[Airflow - Orquestração]
+    E --> F[Grafana + Loki + Promtail - Observabilidade]
 
-MinIO → Data Lake (camada de storage em S3).
-Hive Metastore → Catálogo de tabelas (metadados).
-Spark → ETL, ML, processamento distribuído.
-Trino → Consultas SQL interativas no Data Lake.
-Airflow → Orquestração de pipelines (submete jobs Spark, queries Trino, movimenta dados).
-Grafana + Loki + Promtail → Observabilidade (dashboards, logs centralizados).
+    %% Estilos simplificados (apenas fill e stroke)
+    classDef storage fill:#f9f9a1,stroke:#333;
+    classDef catalog fill:#c4e3f3,stroke:#333;
+    classDef processing fill:#b8f1d3,stroke:#333;
+    classDef query fill:#e3c4f3,stroke:#333;
+    classDef orchestration fill:#f3d9c4,stroke:#333;
+    classDef monitoring fill:#f1b8b8,stroke:#333;
+
+    class A storage
+    class B catalog
+    class C processing
+    class D query
+    class E orchestration
+    class F monitoring
