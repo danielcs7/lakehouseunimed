@@ -1,0 +1,47 @@
+queries:  # SEM INDENTAÇÃO AQUI (nível raiz)
+  - name: "clientes_auditados"
+    description: "Clientes com atividades recentes"
+    query: |
+      WITH tbAudit AS (
+          SELECT id_registro
+          FROM public.auditoria
+          WHERE nome_tabela = 'clientes'
+            AND data >= CURRENT_DATE - 9
+            AND data <= CURRENT_DATE
+          GROUP BY id_registro
+      )
+      SELECT c.*
+      FROM public.clientes c
+      INNER JOIN tbAudit AD ON c.id = AD.id_registro
+    output: "clientes.csv"
+    partition_config:
+      column: "id"
+      lower_bound: 1
+      upper_bound: 1000
+      num_partitions: 10
+
+  - name: "vendas_auditados"
+    description: "Vendas com atividades recentes"
+    query: |
+      WITH tbAudit AS (
+          SELECT id_registro
+          FROM public.auditoria
+          WHERE nome_tabela = 'vendas'
+            AND data >= CURRENT_DATE - 9
+            AND data <= CURRENT_DATE
+          GROUP BY id_registro
+      )
+      SELECT c.*
+      FROM public.vendas c
+      INNER JOIN tbAudit AD ON c.id = AD.id_registro
+    output: "vendas.csv"
+    partition_config:
+      column: "id"
+      lower_bound: 1
+      upper_bound: 1000
+      num_partitions: 10
+
+#  - name: "produtos_ativos"
+#    description: "Produtos ativos em estoque"
+#    query: "SELECT * FROM produtos WHERE ativo = true"
+#    output: "produtos_ativos.csv"

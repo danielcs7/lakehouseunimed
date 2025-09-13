@@ -1,0 +1,139 @@
+version: "3.9"
+
+services:
+  # ------------------------
+  # Hive Metastore
+  # ------------------------
+  hive-metastore:
+    container_name: hive-metastore
+    hostname: hive-metastore
+    build:
+      context: ./hive-metastore
+      dockerfile: Dockerfile
+    image: dataincode/openlakehouse:hive-metastore-3.1.2
+    env_file:
+      - .env
+    ports:
+      - "9083:9083"
+    environment:
+      HIVE_METASTORE_DRIVER: org.postgresql.Driver
+      HIVE_METASTORE_JDBC_URL: ${HIVE_METASTORE_JDBC_URL}
+      HIVE_METASTORE_USER: hive
+      HIVE_METASTORE_PASSWORD: hive
+      HIVE_METASTORE_WAREHOUSE_DIR: ${HIVE_METASTORE_WAREHOUSE_DIR}
+      S3_ENDPOdocker-compose up -d --build   INT: ${S3_ENDPOINT}
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY}
+      S3_SECRET_KEY: ${S3_SECRET_KEY}
+      S3_PATH_STYLE_ACCESS: "true"
+    networks:
+      - iceber-net
+
+  # ------------------------
+  # Spark Master
+  # ------------------------
+  spark-master:
+    build:
+      context: ./spark
+      dockerfile: Dockerfile-spark3.5
+    image: dataincode/openlakehouse:spark-3.5-master
+    container_name: spark-master
+    hostname: spark-master
+    ports:
+      - "4040:4040"
+      - "7077:7077"
+      - "8082:8080" # Spark Master UI
+      - "8900:8888" # Jupyter
+    entrypoint: |
+      /bin/bash -c "
+      /opt/spark/sbin/start-master.sh &&
+      jupyter lab --notebook-dir=/opt/notebook --ip='*' --NotebookApp.token='' --NotebookApp.password='' --port=8888 --no-browser --allow-root
+      "
+    environment:
+      SPARK_MODE: master
+      SPARK_MASTER_MEMORY: 4g
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${S3_SECRET_KEY}
+      AWS_REGION: ${AWS_REGION}
+      AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION}
+      S3_ENDPOINT: ${S3_ENDPOINT}
+      S3_PATH_STYLE_ACCESS: "true"
+    volumes:
+      - ./notebook:/opt/notebook
+      - ./spark/spark-defaults-iceberg.conf:/opt/spark/conf/spark-defaults.conf
+      - ./spark/spark-env.sh:/opt/spark/conf/spark-env.sh
+    networks:
+      - iceber-net
+    depends_on:
+      - hive-metastore
+      
+
+  # ------------------------
+  # Spark Worker
+  # ------------------------
+  spark-worker:
+    build:
+      context: ./spark
+      dockerfile: Dockerfile-spark3.5
+    image: dataincode/openlakehouse:spark-3.5-worker
+    container_name: spark-worker
+    hostname: spark-worker
+    entrypoint: |
+      /bin/bash -c "
+      /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+      "
+    environment:
+      SPARK_MODE: worker
+      SPARK_WORKER_MEMORY: 2g
+      SPARK_WORKER_CORES: 2
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${S3_SECRET_KEY}
+      AWS_REGION: ${AWS_REGION}
+      AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION}
+      S3_ENDPOINT: ${S3_ENDPOINT}
+      S3_PATH_STYLE_ACCESS: "true"
+    volumes:
+      - ./notebook:/opt/notebook
+      - ./spark/spark-defaults-iceberg.conf:/opt/spark/conf/spark-defaults.conf
+      - ./spark/spark-env.sh:/opt/spark/conf/spark-env.sh
+    networks:
+      - iceber-net
+    depends_on:
+      - spark-master
+      - hive-metastore
+      
+
+  # ------------------------
+  # Trino Coordinator
+  # ------------------------
+  trino:
+    container_name: trino
+    hostname: trino
+    image: "trinodb/trino:425"
+    ports:
+      - "8889:8080" # porta web do Trino
+    volumes:
+      - ./trino/etc-coordinator:/etc/trino
+      - ./trino/catalog:/etc/trino/catalog
+    depends_on:
+      - hive-metastore
+    networks:
+      - iceber-net
+
+  # ------------------------
+  # Trino Worker (opcional)
+  # ------------------------
+  trino-worker:
+    container_name: trino-worker
+    hostname: trino-worker
+    image: "trinodb/trino:425"
+    volumes:
+      - ./trino/etc-worker:/etc/trino
+      - ./trino/catalog:/etc/trino/catalog
+    depends_on:
+      - trino
+    networks:
+      - iceber-net
+
+networks:
+  iceber-net:
+    external: true

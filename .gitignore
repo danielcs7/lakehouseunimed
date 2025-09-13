@@ -1,0 +1,100 @@
+# ============================
+# Sistema Operacional (macOS)
+# ============================
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# ============================
+# Arquivos ocultos genéricos
+# ============================
+.*/
+!.gitignore
+!.github/
+
+# ============================
+# Python
+# ============================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg
+*.egg-info/
+*.manifest
+*.spec
+
+# Virtualenvs
+.venv/
+venv/
+ENV/
+env/
+
+# ============================
+# Jupyter Notebooks
+# ============================
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+
+# ============================
+# Logs (mantém pastas, ignora arquivos)
+# ============================
+logs/*
+!logs/.gitkeep
+*/logs/*
+!*/logs/.gitkeep
+
+# ============================
+# Airflow
+# ============================
+airflow/logs/*
+!airflow/logs/.gitkeep
+airflow/postgres-data/*
+!airflow/postgres-data/.gitkeep
+airflow/dags/__pycache__/
+
+# ============================
+# Postgres
+# ============================
+postgres/data/*
+!postgres/data/.gitkeep
+
+# ============================
+# MinIO
+# ============================
+minio/data/*
+!minio/data/.gitkeep
+
+# ============================
+# Spark
+# ============================
+spark-warehouse/
+derby.log
+notebook/data/*
+!notebook/data/.gitkeep
+notebook/.ipynb_checkpoints/
+
+# ============================
+# Hive / Trino
+# ============================
+metastore_db/
+*.crc
+*.avro
+*.parquet
+*.orc
+
+# ============================
+# Grafana
+# ============================
+grafana/grafana-data/*
+!grafana/grafana-data/.gitkeep
+grafana/logs/*
+!grafana/logs/.gitkeep
+
+# ============================
+# Docker
+# ============================
+*.pid
+*.sock
+*.pid.lock

@@ -1,0 +1,19 @@
+jupyterlab==4.2.5
+pyiceberg[pyarrow,s3fs,duckdb,pandas,hive]==0.6.0
+jupysql==0.10.14
+findspark==2.0.1
+
+#aws minio
+boto3
+minio
+
+#BANCO DE DADOS
+SQLAlchemy
+psycopg2-binary
+
+#ANALITICS
+tqdm
+python-dotenv
+python-json-logger 
+requests
+pyyaml
