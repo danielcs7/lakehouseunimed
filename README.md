@@ -44,6 +44,12 @@ O ambiente é orquestrado via **Docker Compose**, permitindo setup local rápido
 
 ## Setup e Inicialização
 
+### Atenção deve fazer o build primeiro
+```bash
+docker-compose build --no-cache  
+```
+
+
 ### 1. Subir PostgreSQL
 Navegue para `postgres/` e execute:
 
